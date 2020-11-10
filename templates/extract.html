@@ -1,0 +1,50 @@
+{% extends 'index.html' %}
+
+{% block progress %}
+    <p>추출하고 있습니다... 잠시만 기다려주세요.</p>
+    <p class="lead">
+    <div class="row justify-content-center">
+        <div class="col-9 col-sm-7 col-md-5">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress"></div>
+            </div>
+        </div>
+    </div>
+    </p>
+{% endblock %}
+
+{% block result %}
+    <div class="row justify-content-center">
+        <div class="spinner-grow text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <textarea class="form-control" id="log"></textarea>
+    </div>
+
+    <script>
+        const url = new URL(window.location.href)
+        const id = '{{ req_id }}'
+        if (id) {
+            console.log('Establishing Connection...')
+            const socketServer = new WebSocket(
+                'ws://' + window.location.host + '/ws/extract/' + id + '/'
+            )
+            socketServer.onmessage = function (e) {
+                console.log(e)
+                const data = JSON.parse(e.data)
+                document.querySelector('#log').value += (data['message'] + '\n')
+            }
+
+            socketServer.onopen = function (e) {
+                document.querySelector('#log').value = 'Socket Opened'
+            }
+
+            socketServer.onclose = function (e) {
+                document.querySelector('#log').value = 'Socket Closed Unexpectedly'
+            }
+        } else {
+            document.querySelector('#log').value = 'Unknown Id'
+        }
+
+    </script>
+{% endblock %}
