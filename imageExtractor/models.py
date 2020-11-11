@@ -15,6 +15,7 @@ class Request(models.Model):
         self.created = timezone.now()
         self.save()
         queue_worker.queue.put(self)
+        print('Added to Queue')
 
     def __str__(self):
         return self.req_id.__str__

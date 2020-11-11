@@ -5,6 +5,7 @@ queue = None
 
 async def start():
     while True:
+        print('Getting Data from Queue...')
         request = await queue.get()
         # TO-DO Process Website
         print("Request Received.")
