@@ -6,7 +6,7 @@
     <div class="row justify-content-center">
         <div class="col-9 col-sm-7 col-md-5">
             <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress"></div>
+                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
     </div>
@@ -15,8 +15,11 @@
 
 {% block result %}
     <div class="row justify-content-center">
-        <div class="spinner-grow text-primary" role="status">
-            <span class="sr-only">Loading...</span>
+        <div id="loading" class="spinner-grow text-primary" role="status">
+            <span class="sr-only">불러오는 중...</span>
+        </div>
+        <div id="download" class="d-none">
+            <button class="btn btn-primary" id="download" onclick="download()">다운로드</button>
         </div>
         <textarea class="form-control" id="log"></textarea>
     </div>
@@ -32,18 +35,35 @@
             socketServer.onmessage = function (e) {
                 console.log(e)
                 const data = JSON.parse(e.data)
+                switch (data['status']) {
+                    case 0:
+                        document.getElementById('progress').setAttribute('aria-valuenow', "25")
+                        break
+                    case 1:
+                        document.getElementById('progress').setAttribute('aria-valuenow', "100")
+                        document.getElementById('loading').classList.add('d-none')
+                        document.getElementById('download').classList.remove('d-none')
+                        break
+                    default:
+                        document.getElementById('progress').setAttribute('aria-valuenow', "0")
+                        break
+                }
                 document.querySelector('#log').value += (data['message'] + '\n')
             }
 
             socketServer.onopen = function (e) {
-                document.querySelector('#log').value = 'Socket Opened'
+                document.querySelector('#log').value = '서버와 연결이 수립되었습니다...\n'
             }
 
             socketServer.onclose = function (e) {
-                document.querySelector('#log').value = 'Socket Closed Unexpectedly'
+                document.querySelector('#log').value += '서버와 연결이 끊겼습니다.\n'
             }
         } else {
-            document.querySelector('#log').value = 'Unknown Id'
+            document.querySelector('#log').value += '알 수 없는 세션\n'
+        }
+
+        function download() {
+            window.location.pathname = '/download'
         }
 
     </script>

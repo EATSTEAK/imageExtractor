@@ -21,10 +21,12 @@ from . import views, queue_worker
 
 urlpatterns = [
     path('', views.index),
-    path('extract', views.extract)
+    path('extract', views.extract),
+    path('download', views.download)
 ]
 print('Init Queue Worker.')
 loop = asyncio.new_event_loop()
 p = threading.Thread(target=queue_worker.init, args=(loop,))
+p.daemon = True
 p.start()
 print('Init Success.')
