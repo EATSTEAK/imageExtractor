@@ -1,5 +1,6 @@
 import mimetypes
 import os
+import shutil
 import sys
 import urllib
 import zipfile
@@ -39,11 +40,13 @@ async def find_all_images_and_save(request):
         await set_progress(request, 10 + int((idx / len(imgs)) * 70))
     browser.close()
     zf = zipfile.ZipFile(os.path.join(req_dir, 'images.zip'), 'w')
-    for dirname, subdirs, files in os.walk(caches_dir):
-        zf.write(dirname)
+    for dirname, subdirs, files in os.walk(caches_dir, topdown=True):
+
+        zf.write(dirname, os.path.relpath(dirname, caches_dir))
         for filename in files:
-            zf.write(os.path.join(dirname, filename))
+            zf.write(os.path.join(dirname, filename), os.path.relpath(os.path.join(dirname, filename), caches_dir))
     zf.close()
+    shutil.rmtree(caches_dir)
     await set_progress(request, 100)
 
 

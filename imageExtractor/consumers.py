@@ -23,7 +23,7 @@ class RequestConsumer(AsyncWebsocketConsumer):
         progress = 0
         while self.connected:
             await asyncio.sleep(2)
-            sys.stdout.write('Check Requests\n')
+            # sys.stdout.write('Check Requests\n')
             requests = await database_sync_to_async(self.get_session_request)()
             if not await database_sync_to_async(self.session_is_unique)(requests):
                 await self.send(json.dumps({
@@ -44,7 +44,7 @@ class RequestConsumer(AsyncWebsocketConsumer):
                 progress = req_progress
                 if status == 0:
                     await self.send(json.dumps({
-                        'message': '처리 중입니다...(' + str(progress) + ')',
+                        'message': '처리 중입니다...(' + str(progress) + '%)',
                         'status': 0,
                         'progress': progress
                     }))

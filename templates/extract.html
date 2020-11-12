@@ -1,9 +1,10 @@
 {% extends 'index.html' %}
 
 {% block progress %}
-    <div id="jumbo-progress">
-    <p>추출하고 있습니다... 잠시만 기다려주세요.</p>
-    <p class="lead">
+    <div>
+        <p id="jumbo-progress">추출하고 있습니다... 잠시만 기다려주세요.</p>
+        <p id="jumbo-completed" class="d-none lead">추출이 완료되었습니다! 아래의 다운로드 버튼을 누르세요.</p>
+        <p class="lead">
         <div class="row justify-content-center">
             <div class="col-9 col-sm-7 col-md-5">
                 <div class="progress">
@@ -12,10 +13,7 @@
                 </div>
             </div>
         </div>
-    </p>
-    </div>
-    <div id="jumbo-completed text-center">
-        <p class="lead">추출이 완료되었습니다! 아래의 다운로드 버튼을 누르세요.</p>
+        </p>
     </div>
 {% endblock %}
 
@@ -27,12 +25,16 @@
         <div id="download" class="d-none">
             <button class="btn btn-primary" id="download" onclick="download()">다운로드</button>
         </div>
-        <textarea class="form-control" id="log"></textarea>
+    </div>
+    <div class="my-3 text-center">
+        <p id="last" class="text-muted"></p>
+        <p id="current" class="lead"></p>
     </div>
 
     <script>
         const url = new URL(window.location.href)
         const id = '{{ req_id }}'
+        const log = []
         if (id) {
             console.log('Establishing Connection...')
             const socketServer = new WebSocket(
@@ -44,15 +46,18 @@
                 document.getElementById('progress').setAttribute('aria-valuenow', data['progress'])
                 document.getElementById('progress').setAttribute('style', 'width: ' + data['progress'] + '%')
                 switch (data['status']) {
-                    case '0':
+                    case 0:
+                        document.getElementById('progress').classList.add('bg-info')
+                        document.getElementById('progress').classList.remove('bg-success')
+                        document.getElementById('progress').classList.remove('bg-danger')
                         break
-                    case '1':
+                    case 1:
                         document.getElementById('loading').classList.add('d-none')
                         document.getElementById('download').classList.remove('d-none')
                         document.getElementById('progress').classList.remove('bg-info')
                         document.getElementById('progress').classList.add('bg-success')
                         document.getElementById('jumbo-progress').classList.add('d-none')
-                        document.getElementById('jumbo-completed').classList.add('d-block')
+                        document.getElementById('jumbo-completed').classList.add('d-inline')
                         document.getElementById('jumbo-completed').classList.remove('d-none')
                         break
                     default:
@@ -60,22 +65,30 @@
                         document.getElementById('progress').classList.add('bg-danger')
                         break
                 }
-                document.querySelector('#log').value += (data['message'] + '\n')
+                updateLog(data['message'] + '\n')
             }
 
             socketServer.onopen = function (e) {
-                document.querySelector('#log').value = '서버와 연결이 수립되었습니다...\n'
+                updateLog('서버와 연결이 수립되었습니다...\n')
             }
 
             socketServer.onclose = function (e) {
-                document.querySelector('#log').value += '서버와 연결이 끊겼습니다.\n'
+                updateLog('서버와 연결이 끊겼습니다.\n')
             }
         } else {
-            document.querySelector('#log').value += '알 수 없는 세션\n'
+            updateLog('알 수 없는 세션\n')
         }
 
         function download() {
             window.location.pathname = '/download'
+        }
+
+        function updateLog(message) {
+            log.push(message)
+            const last = log.length > 1 ? log[log.length - 2] : ''
+            const current = log.length > 0 ? log[log.length - 1] : ''
+            document.getElementById('last').innerText = last
+            document.getElementById('current').innerText = current
         }
 
     </script>
