@@ -1,1 +1,4 @@
 .idea
+files
+db.sqlite3
+geckodriver.log

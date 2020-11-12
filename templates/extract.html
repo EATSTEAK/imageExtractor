@@ -1,16 +1,22 @@
 {% extends 'index.html' %}
 
 {% block progress %}
+    <div id="jumbo-progress">
     <p>추출하고 있습니다... 잠시만 기다려주세요.</p>
     <p class="lead">
-    <div class="row justify-content-center">
-        <div class="col-9 col-sm-7 col-md-5">
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" id="progress" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="row justify-content-center">
+            <div class="col-9 col-sm-7 col-md-5">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar"
+                         id="progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
             </div>
         </div>
-    </div>
     </p>
+    </div>
+    <div id="jumbo-completed text-center">
+        <p class="lead">추출이 완료되었습니다! 아래의 다운로드 버튼을 누르세요.</p>
+    </div>
 {% endblock %}
 
 {% block result %}
@@ -35,17 +41,23 @@
             socketServer.onmessage = function (e) {
                 console.log(e)
                 const data = JSON.parse(e.data)
+                document.getElementById('progress').setAttribute('aria-valuenow', data['progress'])
+                document.getElementById('progress').setAttribute('style', 'width: ' + data['progress'] + '%')
                 switch (data['status']) {
-                    case 0:
-                        document.getElementById('progress').setAttribute('aria-valuenow', "25")
+                    case '0':
                         break
-                    case 1:
-                        document.getElementById('progress').setAttribute('aria-valuenow', "100")
+                    case '1':
                         document.getElementById('loading').classList.add('d-none')
                         document.getElementById('download').classList.remove('d-none')
+                        document.getElementById('progress').classList.remove('bg-info')
+                        document.getElementById('progress').classList.add('bg-success')
+                        document.getElementById('jumbo-progress').classList.add('d-none')
+                        document.getElementById('jumbo-completed').classList.add('d-block')
+                        document.getElementById('jumbo-completed').classList.remove('d-none')
                         break
                     default:
-                        document.getElementById('progress').setAttribute('aria-valuenow', "0")
+                        document.getElementById('progress').classList.remove('bg-info')
+                        document.getElementById('progress').classList.add('bg-danger')
                         break
                 }
                 document.querySelector('#log').value += (data['message'] + '\n')
