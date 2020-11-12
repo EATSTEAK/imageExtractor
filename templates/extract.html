@@ -3,7 +3,11 @@
 {% block progress %}
     <div>
         <p id="jumbo-progress">추출하고 있습니다... 잠시만 기다려주세요.</p>
-        <p id="jumbo-completed" class="d-none lead">추출이 완료되었습니다! 아래의 다운로드 버튼을 누르세요.</p>
+        <div id="jumbo-completed" class="d-none">
+            <p class="lead">추출이 완료되었습니다! 아래의 다운로드 버튼을 누르세요.</p>
+            <p class="text-muted">추출된 파일은 5분 후에 사라집니다.</p>
+        </div>
+
         <p class="lead">
         <div class="row justify-content-center">
             <div class="col-9 col-sm-7 col-md-5">
